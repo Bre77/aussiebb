@@ -2,13 +2,15 @@
 
 import json
 from time import time
+from datetime import datetime
 
 from loguru import logger
 import requests
 
 BASEURL = {
     'api' : 'https://myaussie-api.aussiebroadband.com.au',
-    'login' : "https://myaussie-auth.aussiebroadband.com.au/login"
+    'login' : "https://myaussie-auth.aussiebroadband.com.au/login",
+    'usage' : "https://myaussie-api.aussiebroadband.com.au/broadband/{serviceid}/usage/{year}/{month}",
 }
 
 def default_headers():
@@ -122,9 +124,23 @@ class AussieBB():
             logger.debug("You've got a lot of services - please contact the package maintainer to test the multi-page functionality!") #pylint: disable=line-too-long
         return responsedata.get('data')
 
-    def get_usage(self, serviceid: int):
+    def get_usage(self, serviceid: int, **kwargs):
         """ returns a json blob of usage for a service """
+
+
         url = f"{BASEURL.get('api')}/broadband/{serviceid}/usage"
+        if 'year' in kwargs and 'month' not in kwargs:
+            logger.warning("get_usage called with year but not month")
+        elif 'month' in kwargs and 'year' not in kwargs:
+            year = datetime.now().year
+
+            # if it's the current month use current
+            if int(kwargs.get('month')) == datetime.now().month:
+                logger.debug("Month/Year is current, using 'current' URL")
+                url = f"{BASEURL.get('api')}/broadband/{serviceid}/usage/current"
+            # else, specify it
+            url = f"{BASEURL.get('api')}/broadband/{serviceid}/usage/{year}/{kwargs.get('month')}"
+        logger.debug(f"Querying URL: {url}")
         response = self.request_get(url=url)
         responsedata = response.json()
         logger.debug(responsedata)

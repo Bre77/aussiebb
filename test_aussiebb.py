@@ -7,6 +7,7 @@ import requests.exceptions
 from loguru import logger
 
 from aussiebb import AussieBB
+from datetime import datetime
 
 try:
     from config import username, password
@@ -54,6 +55,30 @@ def test_get_usage(api=TESTAPI):
     """ test get_usage """
     serviceid = api.get_services()[0].get('service_id')
     assert api.get_usage(serviceid).get('daysTotal')
+
+def test_get_usage_month(api=TESTAPI):
+    """ test get_usage with month """
+    serviceid = api.get_services()[0].get('service_id')
+    monthtofind = datetime.now().month-1
+    if monthtofind < 1:
+
+    result = api.get_usage(serviceid, month=monthtofind).get('data')
+    logger.debug(result)
+    assert result
+
+
+def test_get_usage_month_current(api=TESTAPI):
+    """ test get_usage with month """
+    serviceid = api.get_services()[0].get('service_id')
+    result = api.get_usage(serviceid, month=datetime.now().month).get('data')
+    logger.debug(result)
+    assert result
+
+# def test_get_usage(api=TESTAPI):
+#     """ test get_usage """
+#     serviceid = api.get_services()[0].get('service_id')
+#     assert api.get_usage(serviceid).get('daysTotal')
+
 
 def test_get_service_plans():
     for un, pw in [ [username, password], [username2, password2]]:
