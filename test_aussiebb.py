@@ -54,6 +54,7 @@ def test_line_state(api=TESTAPI):
 def test_get_usage(api=TESTAPI):
     """ test get_usage """
     serviceid = api.get_services()[0].get('service_id')
+    logger.debug(serviceid)
     assert api.get_usage(serviceid).get('daysTotal')
 
 def test_get_usage_month(api=TESTAPI):
@@ -62,9 +63,9 @@ def test_get_usage_month(api=TESTAPI):
     monthtofind = datetime.now().month-1
     if monthtofind < 1:
 
-    result = api.get_usage(serviceid, month=monthtofind).get('data')
-    logger.debug(result)
-    assert result
+        result = api.get_usage(serviceid, month=monthtofind).get('data')
+        logger.debug(result)
+        assert result
 
 
 def test_get_usage_month_current(api=TESTAPI):
